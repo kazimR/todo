@@ -53,13 +53,13 @@ resource "aws_dynamodb_table" "terraform_locks" {
 terraform {
   backend "s3" {
     
-    bucket         = "kazim-dev-ktech-terraform-state"
+    bucket         = "kazim-test-wt-terraform-state"
     key            = "global/s3/terraform.tfstate"
     region         = "eu-west-1"
    
 
     # Replace this with your DynamoDB table name!
-    dynamodb_table = "kazim-dev-ktech-terraform-state"
+    dynamodb_table = "kazim-test-wt-terraform-state"
     encrypt        = true
   }
 }
