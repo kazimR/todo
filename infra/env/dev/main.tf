@@ -105,7 +105,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "${var.user}-node-group-1"
+      name = "${var.user}-node-group-2"
 
       instance_types = ["t3.small"]
 
@@ -123,6 +123,55 @@ module myip{
   source  = "../../modules/myip"
 
 }
+
+
+#Ingress Policy for each nodes
+
+resource "aws_iam_policy" "worker_policy" {
+  name        = "worker-policy"
+  description = "Worker policy for the ALB Ingress"
+
+  policy = file("hello-iam-policy.json")
+}
+
+resource "aws_iam_role_policy_attachment" "additional" {
+  for_each = module.eks.eks_managed_node_groups
+
+  policy_arn = aws_iam_policy.worker_policy.arn
+  role       = each.value.iam_role_name
+}
+
+#ALB
+
+
+resource "aws_default_security_group" "default" {
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    protocol  = -1
+   
+    from_port = 0
+    to_port   = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+module alb{
+  source  = "../../modules/alb"
+  lb_name = "${var.user}-${var.env}-${var.company}"
+  public_subnets_ids = module.vpc.public_subnet_ids
+  security_groups_ids = [aws_default_security_group.default.id]
+}
+
+
+
 
 
 

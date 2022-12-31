@@ -42,6 +42,8 @@ resource "aws_subnet" "public_subnet" {
   tags = {
     Name        = "${var.environment}-${element(var.availability_zones, count.index)}-public-subnet"
     Environment = "${var.environment}"
+    join("", ["kubernetes.io/cluster/", var.environment]) = "shared"
+    "kubernetes.io/role/elb"= 1    
   }
 }
 /* Private subnet */
@@ -54,6 +56,7 @@ resource "aws_subnet" "private_subnet" {
   tags = {
     Name        = "${var.environment}-${element(var.availability_zones, count.index)}-private-subnet"
     Environment = "${var.environment}"
+    join("", ["kubernetes.io/cluster/", var.environment]) = "shared"
   }
 }
 /* Routing table for private subnet */
