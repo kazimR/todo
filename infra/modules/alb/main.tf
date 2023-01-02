@@ -20,7 +20,7 @@ resource "aws_lb_listener" "front_end" {
 
     fixed_response {
       content_type = "text/plain"
-      message_body = "Fixed response content"
+      message_body = "You are a legitimate client"
       status_code  = "200"
     }
   }
