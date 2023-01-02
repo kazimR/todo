@@ -34,3 +34,9 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore 
+/infra/env/*/.terraform
+/infra/env/*/*.tfstate
+/infra/env/*/*.backup
+/infra/env/*/*.hcl

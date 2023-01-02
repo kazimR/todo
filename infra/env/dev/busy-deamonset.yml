@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: busybox
+  namespace: default
+  labels:
+    name: busybox
+
+spec:
+  selector:
+    matchLabels:
+      name: busybox
+  template:
+    metadata:
+      labels:
+        name: busybox
+    spec:
+      tolerations:
+      # these tolerations are to have the daemonset runnable on control plane nodes
+
+      # remove them if your control plane nodes should not run pods
+      containers:
+      - name: busybox
+        image: radial/busyboxplus:curl
+        command:
+          - sleep
+          - "3600"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+
+        
