@@ -162,12 +162,25 @@ resource "aws_default_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
+# ALB
 module alb{
   source  = "../../modules/alb"
-  lb_name = "${var.user}-${var.env}-${var.company}"
+  lb_name = "${var.user}${var.env}${var.company}"
   public_subnets_ids = module.vpc.public_subnet_ids
   security_groups_ids = [aws_default_security_group.default.id]
+}
+# Code Pipeline
+module build{
+  source  = "../../modules/codebuild"
+  name = "${var.user}-${var.env}-${var.company}"
+  
+}
+
+# Code Pipeline
+module codepipeline{
+  source  = "../../modules/codepipeline"
+  name = "${var.user}-${var.env}-${var.company}"
+  bucketlocation = "ktestcode"
 }
 
 
