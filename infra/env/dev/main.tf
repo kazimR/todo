@@ -173,7 +173,11 @@ module alb{
 module build{
   source  = "../../modules/codebuild"
   name = "${var.user}-${var.env}-${var.company}"
-  
+  region = "${var.region}"
+  eksclustername = "${module.eks.cluster_name}"
+  deploy_env = "${var.env}"
+  k8sfiles = "2048_full.yml,busy-deamonset.yml"
+
 }
 
 # Code Pipeline
@@ -181,9 +185,8 @@ module codepipeline{
   source  = "../../modules/codepipeline"
   name = "${var.user}-${var.env}-${var.company}"
   bucketlocation = "ktestcode"
+  
 }
-
-
 
 
 

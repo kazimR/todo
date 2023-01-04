@@ -40,3 +40,4 @@
 /infra/env/*/*.tfstate
 /infra/env/*/*.backup
 /infra/env/*/*.hcl
+infra/env/dev/config

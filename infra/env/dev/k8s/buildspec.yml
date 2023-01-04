@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase...
+  pre_build:
+    commands:
+      - timestamp=$(date +%Y%m%dT%H%M)
+      - echo Entered the build phase...
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl
+      - export PATH=$PATH:./kubectl
+      - kubectl version --client --output=yaml
+      - aws eks --region $region update-kubeconfig --name  $eksclustername
+      
+  build:
+    commands:
+      - echo Entered the build phase...
+      - kubectl cluster-info
+      - for i in $(echo $k8sfiles | sed "s/,/ /g"); do kubectl apply -f  "$i"; done
+      #- kubectl apply -f infra/env/dev/k8s/2048_full.yml
+

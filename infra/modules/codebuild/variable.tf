@@ -2,14 +2,22 @@ variable name {
   type    = string
 }
 
-# variable vpc_id{
-#   type = string
-# }
+variable region {
+  description = "AWS region"
+  type        = string
+}
 
-# variable public_subnet_groups {
-#    type    = list(string)
-# }
+variable eksclustername {
+  description = "EKS Cluster Name"
+  type        = string
+}
 
-# variable vpc_security_group {
-#    type    = list(string)
-# }
+variable deploy_env {
+  description = "Deployment environemnt"
+  type        = string
+}
+
+variable k8sfiles {
+  description = "comma seperated list of files"
+  type        = string
+}
