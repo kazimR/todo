@@ -84,7 +84,7 @@ module "rds" {
 
 }
 
-#EKS Creation
+# EKS Creation
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -124,9 +124,7 @@ module myip{
 
 }
 
-
 #Ingress Policy for each nodes
-
 resource "aws_iam_policy" "worker_policy" {
   name        = "worker-policy"
   description = "Worker policy for the ALB Ingress"
@@ -141,9 +139,7 @@ resource "aws_iam_role_policy_attachment" "additional" {
   role       = each.value.iam_role_name
 }
 
-#ALB
-
-
+# ALB Security Group
 resource "aws_default_security_group" "default" {
   vpc_id = module.vpc.vpc_id
 
@@ -162,6 +158,7 @@ resource "aws_default_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 # ALB
 module alb{
   source  = "../../modules/alb"
@@ -169,6 +166,7 @@ module alb{
   public_subnets_ids = module.vpc.public_subnet_ids
   security_groups_ids = [aws_default_security_group.default.id]
 }
+
 # S3 Code Bucket
 module s3code{
    source  = "../../modules/s3_codebuild"
@@ -204,8 +202,3 @@ module build{
   artifacts_bucket_name = "${module.s3code.name}"
   artifacts_bucket_arn = "${module.s3code.arn}" 
 }
-
-
-
-
-
