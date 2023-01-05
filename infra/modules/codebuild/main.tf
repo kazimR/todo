@@ -7,6 +7,10 @@ resource "aws_codebuild_project" "wt" {
   artifacts {
     type = "NO_ARTIFACTS"
   }
+  source{
+   type ="S3"
+   location =  "${var.s3_source}"
+  }
   
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
@@ -38,40 +42,5 @@ resource "aws_codebuild_project" "wt" {
       stream_name = "log-stream"
     }
 
-  }
-
-  source{
-   type ="S3"
-   location =  "${var.s3_source}"
-  }
-
-  # source {
-  #   type            = "GITHUB"
-  #   location        = "https://github.com/kazimR/todo.git"
-  #   git_clone_depth = 1
-
-  #   git_submodules_config {
-  #     fetch_submodules = true
-  #   }
-  # }
-
-  # source_version = "master"
-
-  # vpc_config {
-  #   vpc_id = aws_vpc.wt.id
-
-  #   subnets = [
-  #     aws_subnet.wt1.id,
-  #     aws_subnet.wt2.id,
-  #   ]
-
-  #   security_group_ids = [
-  #     aws_security_group.wt1.id,
-  #     aws_security_group.wt2.id,
-  #   ]
-  # }
-
-  tags = {
-    Environment = "Test"
-  }
+  }  
 }

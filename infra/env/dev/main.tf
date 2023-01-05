@@ -174,7 +174,7 @@ module s3code{
    source  = "../../modules/s3_codebuild"
    name = "${var.user}-${var.env}-${var.company}-repo"
 } 
-
+# codebuild role
 module iam_role_codebuild{
   source  = "../../modules/iam"
   s3_arn =  "${module.s3code.arn}"
@@ -197,12 +197,13 @@ module build{
 }
 
 # # Code Pipeline
-# module codepipeline{
-#   source  = "../../modules/codepipeline"
-#   name = "${var.user}-${var.env}-${var.company}"
-#   bucketlocation = "ktestcode"
+ module codepipeline{
+  source  = "../../modules/codepipeline"
+  name = "${var.user}-${var.env}-${var.company}"
   
-# }
+  artifacts_bucket_name = "${module.s3code.name}"
+  artifacts_bucket_arn = "${module.s3code.arn}" 
+}
 
 
 

@@ -1,5 +1,5 @@
 resource "aws_iam_role" "wt" {
-  name = var.name
+  name = "${var.name}-codebuild"
 
   assume_role_policy = <<EOF
 {
@@ -73,11 +73,11 @@ resource "aws_iam_role_policy" "wt" {
             "Resource": "*"
     },
     {
-            "Sid": "VisualEditor0",
+            "Sid": "eks",
             "Effect": "Allow",
             "Action": "eks:*",
             "Resource": "*"
-    }    
+    }  
   ]
 }
 POLICY
