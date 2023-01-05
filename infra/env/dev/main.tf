@@ -84,7 +84,7 @@ module "rds" {
 
 }
 
-#EKS Creation
+# EKS Creation
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -124,9 +124,7 @@ module myip{
 
 }
 
-
 #Ingress Policy for each nodes
-
 resource "aws_iam_policy" "worker_policy" {
   name        = "worker-policy"
   description = "Worker policy for the ALB Ingress"
@@ -141,9 +139,7 @@ resource "aws_iam_role_policy_attachment" "additional" {
   role       = each.value.iam_role_name
 }
 
-#ALB
-
-
+# ALB Security Group
 resource "aws_default_security_group" "default" {
   vpc_id = module.vpc.vpc_id
 
@@ -162,6 +158,7 @@ resource "aws_default_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 # ALB
 module alb{
   source  = "../../modules/alb"
@@ -169,23 +166,39 @@ module alb{
   public_subnets_ids = module.vpc.public_subnet_ids
   security_groups_ids = [aws_default_security_group.default.id]
 }
-# Code Pipeline
+
+# S3 Code Bucket
+module s3code{
+   source  = "../../modules/s3_codebuild"
+   name = "${var.user}-${var.env}-${var.company}-repo"
+} 
+# codebuild role
+module iam_role_codebuild{
+  source  = "../../modules/iam"
+  s3_arn =  "${module.s3code.arn}"
+  name = "${var.user}-${var.env}-${var.company}"
+
+}
+
+# Code Build EKS
 module build{
   source  = "../../modules/codebuild"
   name = "${var.user}-${var.env}-${var.company}"
-  
+  region = "${var.region}"
+  eksclustername = "${module.eks.cluster_name}"
+  deploy_env = "${var.env}"
+  k8sfiles = "2048_full.yml,busy-deamonset.yml"
+  #s3_source = "/todo/infra/env/${var.env}/k8s/"
+  s3_source = "${module.s3code.name}/todo/infra/env/${var.env}/k8s/"
+  s3_arn = "${module.s3code.arn}"
+  codebuild_role_arn = "${module.iam_role_codebuild.arn}"
 }
 
-# Code Pipeline
-module codepipeline{
+# # Code Pipeline
+ module codepipeline{
   source  = "../../modules/codepipeline"
   name = "${var.user}-${var.env}-${var.company}"
-  bucketlocation = "ktestcode"
+  
+  artifacts_bucket_name = "${module.s3code.name}"
+  artifacts_bucket_arn = "${module.s3code.arn}" 
 }
-
-
-
-
-
-
-
