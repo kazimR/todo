@@ -1,6 +1,6 @@
 # Terraform S3 State bucket 
 resource "aws_s3_bucket" "code" {
-  bucket = "${var.name}-code"
+  bucket = "${var.name}"
    
 }
 

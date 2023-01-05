@@ -2,7 +2,7 @@ resource "aws_codebuild_project" "wt" {
   name          = var.name
   description   = "test_codebuild_project"
   build_timeout = "30"
-  service_role  = aws_iam_role.wt.arn
+  service_role  = var.codebuild_role_arn
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -42,7 +42,7 @@ resource "aws_codebuild_project" "wt" {
 
   source{
    type ="S3"
-   location = "${aws_s3_bucket.code.bucket}/todo/infra/env/${var.deploy_env}/k8s/"
+   location =  "${var.s3_source}"
   }
 
   # source {
@@ -74,89 +74,4 @@ resource "aws_codebuild_project" "wt" {
   tags = {
     Environment = "Test"
   }
-}
-
-resource "aws_iam_role" "wt" {
-  name = var.name
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "codebuild.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "wt" {
-  role = aws_iam_role.wt.name
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Resource": [
-        "*"
-      ],
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:CreateNetworkInterface",
-        "ec2:DescribeDhcpOptions",
-        "ec2:DescribeNetworkInterfaces",
-        "ec2:DeleteNetworkInterface",
-        "ec2:DescribeSubnets",
-        "ec2:DescribeSecurityGroups",
-        "ec2:DescribeVpcs"
-      ],
-      "Resource": "*"
-    },
-    {
-            "Effect": "Allow",
-            "Action": "codestar-connections:UseConnection",
-            "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:*"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.code.arn}",
-        "${aws_s3_bucket.code.arn}/*"
-      ]
-    },
-    {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:Describe*",
-                "ssm:Get*",
-                "ssm:List*"
-            ],
-            "Resource": "*"
-    },
-    {
-            "Sid": "VisualEditor0",
-            "Effect": "Allow",
-            "Action": "eks:*",
-            "Resource": "*"
-    }    
-  ]
-}
-POLICY
 }
