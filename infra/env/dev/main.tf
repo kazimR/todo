@@ -77,12 +77,12 @@ module "vpc" {
 }
 
 # RDS Creation
-module "rds" {
-  source = "../../modules/rds"
-  private_subnet_groups = "${module.vpc.private_subnet_ids}"
-  prefix_db = "${var.user}-${var.env}-${var.company}"  
+# module "rds" {
+#   source = "../../modules/rds"
+#   private_subnet_groups = "${module.vpc.private_subnet_ids}"
+#   prefix_db = "${var.user}-${var.env}-${var.company}"  
 
-}
+# }
 
 # EKS Creation
 
@@ -118,87 +118,87 @@ module "eks" {
   }
 }
 
-#myip
-module myip{
-  source  = "../../modules/myip"
+# #myip
+# module myip{
+#   source  = "../../modules/myip"
 
-}
+# }
 
-#Ingress Policy for each nodes
-resource "aws_iam_policy" "worker_policy" {
-  name        = "worker-policy"
-  description = "Worker policy for the ALB Ingress"
+# #Ingress Policy for each nodes
+# resource "aws_iam_policy" "worker_policy" {
+#   name        = "worker-policy"
+#   description = "Worker policy for the ALB Ingress"
 
-  policy = file("hello-iam-policy.json")
-}
+#   policy = file("hello-iam-policy.json")
+# }
 
-resource "aws_iam_role_policy_attachment" "additional" {
-  for_each = module.eks.eks_managed_node_groups
+# resource "aws_iam_role_policy_attachment" "additional" {
+#   for_each = module.eks.eks_managed_node_groups
 
-  policy_arn = aws_iam_policy.worker_policy.arn
-  role       = each.value.iam_role_name
-}
+#   policy_arn = aws_iam_policy.worker_policy.arn
+#   role       = each.value.iam_role_name
+# }
 
-# ALB Security Group
-resource "aws_default_security_group" "default" {
-  vpc_id = module.vpc.vpc_id
+# # ALB Security Group
+# resource "aws_default_security_group" "default" {
+#   vpc_id = module.vpc.vpc_id
 
-  ingress {
-    protocol  = -1
+#   ingress {
+#     protocol  = -1
    
-    from_port = 0
-    to_port   = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#     from_port = 0
+#     to_port   = 0
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
 
-# ALB
-module alb{
-  source  = "../../modules/alb"
-  lb_name = "${var.user}${var.env}${var.company}"
-  public_subnets_ids = module.vpc.public_subnet_ids
-  security_groups_ids = [aws_default_security_group.default.id]
-}
+# # ALB
+# module alb{
+#   source  = "../../modules/alb"
+#   lb_name = "${var.user}${var.env}${var.company}"
+#   public_subnets_ids = module.vpc.public_subnet_ids
+#   security_groups_ids = [aws_default_security_group.default.id]
+# }
 
-# S3 Code Bucket
-module s3code{
-   source  = "../../modules/s3_codebuild"
-   name = "${var.user}-${var.env}-${var.company}-repo"
-} 
-# codebuild role
-module iam_role_codebuild{
-  source  = "../../modules/iam"
-  s3_arn =  "${module.s3code.arn}"
-  name = "${var.user}-${var.env}-${var.company}"
+# # S3 Code Bucket
+# module s3code{
+#    source  = "../../modules/s3_codebuild"
+#    name = "${var.user}-${var.env}-${var.company}-repo"
+# } 
+# # codebuild role
+# module iam_role_codebuild{
+#   source  = "../../modules/iam"
+#   s3_arn =  "${module.s3code.arn}"
+#   name = "${var.user}-${var.env}-${var.company}"
 
-}
+# }
 
-# Code Build EKS
-module build{
-  source  = "../../modules/codebuild"
-  name = "${var.user}-${var.env}-${var.company}"
-  region = "${var.region}"
-  eksclustername = "${module.eks.cluster_name}"
-  deploy_env = "${var.env}"
-  k8sfiles = "2048_full.yml,busy-deamonset.yml"
-  #s3_source = "/todo/infra/env/${var.env}/k8s/"
-  s3_source = "${module.s3code.name}/todo/infra/env/${var.env}/k8s/"
-  s3_arn = "${module.s3code.arn}"
-  codebuild_role_arn = "${module.iam_role_codebuild.arn}"
-}
+# # Code Build EKS
+# module build{
+#   source  = "../../modules/codebuild"
+#   name = "${var.user}-${var.env}-${var.company}"
+#   region = "${var.region}"
+#   eksclustername = "${module.eks.cluster_name}"
+#   deploy_env = "${var.env}"
+#   k8sfiles = "2048_full.yml,busy-deamonset.yml"
+#   #s3_source = "/todo/infra/env/${var.env}/k8s/"
+#   s3_source = "${module.s3code.name}/todo/infra/env/${var.env}/k8s/"
+#   s3_arn = "${module.s3code.arn}"
+#   codebuild_role_arn = "${module.iam_role_codebuild.arn}"
+# }
 
-# # Code Pipeline
- module codepipeline{
-  source  = "../../modules/codepipeline"
-  name = "${var.user}-${var.env}-${var.company}"
+# # # Code Pipeline
+#  module codepipeline{
+#   source  = "../../modules/codepipeline"
+#   name = "${var.user}-${var.env}-${var.company}"
   
-  artifacts_bucket_name = "${module.s3code.name}"
-  artifacts_bucket_arn = "${module.s3code.arn}" 
-}
+#   artifacts_bucket_name = "${module.s3code.name}"
+#   artifacts_bucket_arn = "${module.s3code.arn}" 
+# }

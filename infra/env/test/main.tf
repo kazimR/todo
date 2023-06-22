@@ -90,7 +90,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.0.4"
 
-  cluster_name    = "${var.user}-${var.env}-${var.company}"
+  cluster_name    = "${var.user}-${var.env}-${var.company}-2"
   cluster_version = "1.24"
   #region          = "${var.region}"
 
@@ -201,4 +201,4 @@ module build{
   
   artifacts_bucket_name = "${module.s3code.name}"
   artifacts_bucket_arn = "${module.s3code.arn}" 
-}
+ }
